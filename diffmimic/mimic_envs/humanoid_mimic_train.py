@@ -6,10 +6,19 @@ import jax
 
 
 class HumanoidMimicTrain(HumanoidMimic):
-    """Trains a humanoid to mimic reference motion."""
 
-    def __init__(self, total_length, rollout_length, early_termination, demo_replay_mode, err_threshold, replay_rate,
+    def __init__(self,
+                 total_length,
+                 rollout_length,
+                 early_termination,
+                 demo_replay_mode,
+                 err_threshold,
+                 replay_rate,
                  **kwargs):
+        """
+        Trains a humanoid to mimic reference motion.
+        """
+
         super().__init__(**kwargs)
         self.total_length = total_length
         self.rollout_length = rollout_length
@@ -19,10 +28,13 @@ class HumanoidMimicTrain(HumanoidMimic):
         self.replay_rate = replay_rate
 
     def reset(self, rng: jp.ndarray) -> env.State:
+
         reward, done, zero = jp.zeros(3)
         step_index = jp.randint(rng, high=self.total_length-self.rollout_length+1)   # random state initialization (RSI)
         qp = self._get_ref_state(step_index)
-        metrics = {'step_index': step_index, 'pose_error': zero, 'fall': zero}
+        metrics = {'step_index': step_index,
+                   'pose_error': zero,
+                   'fall': zero}
         obs = self._get_obs(qp, step_index=step_index)
         state = env.State(qp, obs, reward, done, metrics)
         if self.demo_replay_mode != 'none':
@@ -33,6 +45,7 @@ class HumanoidMimicTrain(HumanoidMimic):
         return state
 
     def step(self, state: env.State, action: jp.ndarray) -> env.State:
+
         state = super(HumanoidMimicTrain, self).step(state, action)
         if self.early_termination:
             state = state.replace(done=state.metrics['fall'])
@@ -41,6 +54,7 @@ class HumanoidMimicTrain(HumanoidMimic):
         return state
 
     def _demo_replay(self, state) -> env.State:
+
         qp = state.qp
         ref_qp = self._get_ref_state(state.metrics['step_index'])
         if self.demo_replay_mode == 'threshold':

@@ -1,4 +1,3 @@
-import brax
 import jax.numpy as jnp
 from brax.v1.physics.base import QP
 
@@ -26,9 +25,6 @@ def serialize_qp(qp) -> jnp.array:
     vel = qp.vel
     ang = qp.ang
     batch_dim = pos.shape[:-2]
-    nparray = []
-    nparray.append(pos.reshape(batch_dim + (-1,)))
-    nparray.append(rot.reshape(batch_dim + (-1,)))
-    nparray.append(vel.reshape(batch_dim + (-1,)))
-    nparray.append(ang.reshape(batch_dim + (-1,)))
+    nparray = [pos.reshape(batch_dim + (-1,)), rot.reshape(batch_dim + (-1,)), vel.reshape(batch_dim + (-1,)),
+               ang.reshape(batch_dim + (-1,))]
     return jnp.concatenate(nparray, axis=-1)
