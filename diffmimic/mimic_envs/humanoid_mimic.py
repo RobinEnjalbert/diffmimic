@@ -1,10 +1,11 @@
-import brax
-from brax import jumpy as jp
-from brax.envs import env
+# import brax
+import brax.v1.jumpy as jp
+from brax.v1.envs import env
 from .system_configs import get_system_cfg
 from diffmimic.utils.io import deserialize_qp
 from .losses import *
 from diffmimic.utils.rotation6d import quaternion_to_rotation_6d
+from brax.v1.physics.base import QP
 
 
 class HumanoidMimic(env.Env):
@@ -52,7 +53,7 @@ class HumanoidMimic(env.Env):
         state = state.replace(qp=qp, obs=obs, reward=reward)
         return state
 
-    def _get_obs(self, qp: brax.QP, step_index: jp.ndarray) -> jp.ndarray:
+    def _get_obs(self, qp: QP, step_index: jp.ndarray) -> jp.ndarray:
         """Observe humanoid body position, velocities, and angles."""
         pos, rot, vel, ang = qp.pos[:-1], qp.rot[:-1], qp.vel[:-1], qp.ang[:-1]  # Remove floor
         rot_6d = quaternion_to_rotation_6d(rot)
@@ -73,7 +74,7 @@ class HumanoidMimic(env.Env):
             raise NotImplementedError
         return obs
 
-    def _get_ref_state(self, step_idx) -> brax.QP:
+    def _get_ref_state(self, step_idx) -> QP:
         mask = jp.where(step_idx == jp.arange(0, self.reference_len), jp.float32(1), jp.float32(0))
         ref_state = jp.tree_map(lambda x: (mask @ x.transpose(1, 0, 2)), self.reference_qp)
         return ref_state

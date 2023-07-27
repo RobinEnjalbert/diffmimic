@@ -1,9 +1,9 @@
 import brax
 import jax.numpy as jnp
-from brax import QP
+from brax.v1.physics.base import QP
 
 
-def deserialize_qp(nparray) -> brax.QP:
+def deserialize_qp(nparray) -> QP:
     """
     Get QP from a trajectory numpy array
     """
